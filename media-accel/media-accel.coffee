@@ -16,19 +16,17 @@ catch
 			console.log 'Cannot find media-accel.node'
 			process.exit 1
 
-console.log
-	MediaAccelMethod: MediaAccelMethod
-	MediaAccelPath: MediaAccelPath
-
-MediaAccel.FreeConsole()
-
+#console.log
+#	MediaAccelMethod: MediaAccelMethod
+#	MediaAccelPath: MediaAccelPath
 
 global.MediaAccel = MediaAccel
-global.gl = MediaAccel
-global.glu = MediaAccel
+#global.gl
+#global.glu = MediaAccel
 global.User32 = MediaAccel
-global.Gdi32 = MediaAccel
-global.wgl = MediaAccel
+global.GL_CONST = MediaAccel
+#global.Gdi32 = MediaAccel
+#global.wgl = MediaAccel
 
 log = ->
 	console.log.apply console, arguments
@@ -67,3 +65,10 @@ User32.WNDCLASSW.prototype.toString = -> return JSON.stringify @toObject()
 StructHelpers = require('./StructHelpers')
 
 StructHelpers.add_fromObjects MediaAccel.WNDCLASSW
+
+#console.log MediaAccel.class_OpenGL.prototype
+#console.log global.gl, gl.glViewport
+
+
+#console.log GL_CONST
+#console.log MediaAccel.OpenGL.prototype.GL_ALWAYS_FAST_HINT_PGI

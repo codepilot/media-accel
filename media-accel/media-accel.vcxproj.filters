@@ -56,6 +56,9 @@
     <ClInclude Include="class_Intrinsics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="autogen_OpenGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />

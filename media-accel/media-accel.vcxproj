@@ -45,7 +45,7 @@
     <IntDir>$(SolutionDir)$(Platform)\$(Configuration)\Intermediate\</IntDir>
     <TargetName>$(ProjectName)</TargetName>
     <TargetExt>.node</TargetExt>
-    <IncludePath>$(NODESRC)\src;$(NODESRC)\deps\v8\include;$(NODESRC)\deps\uv\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(NODESRC)\src;$(NODESRC)\deps\v8\include;$(NODESRC)\deps\uv\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(NODESRC)\$(NODE_BUILD_MODE);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -108,6 +108,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="autogen_OpenGL.h" />
     <ClInclude Include="code_CreateGLWindow.h" />
     <ClInclude Include="code_DrawGLScene.h" />
     <ClInclude Include="code_InitGL.h" />

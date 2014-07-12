@@ -1,9 +1,19 @@
-require('./media-accel') #adds MediaAccel, gl, wgl, glu, User32, Gdi32 to global space
+#require('./media-accel')
+debugDrawGLScene = false
 
 rtri = 0
 rquad = 0
 
 exports.DrawGLScene = -> #Here's Where We Do All The Drawing
+	if debugDrawGLScene
+		console.log 'DrawGLScene'
+
+	unless global.gl?
+		console.log 'no gl'
+		return User32.TRUE
+		
+	#gl.glClearColor(Math.random(), Math.random(), Math.random(), Math.random())
+
 	gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT) #Clear Screen And Depth Buffer
 
 	gl.glMatrixMode(gl.GL_MODELVIEW)                         # Select The Modelview Matrix
@@ -78,4 +88,4 @@ exports.DrawGLScene = -> #Here's Where We Do All The Drawing
 
 	rtri += 0.2 #Increase The Rotation Variable For The Triangle ( NEW )
 	rquad -= 0.15 #Decrease The Rotation Variable For The Quad ( NEW )
-	return gl.TRUE #Keep Going
+	return User32.TRUE #Keep Going

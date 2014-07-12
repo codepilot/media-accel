@@ -1,4 +1,4 @@
-require('./media-accel') #adds MediaAccel, gl, wgl, glu, User32, Gdi32 to global space
+require('./media-accel')
 
 CreateGLWindow = require('./CreateGLWindow').CreateGLWindow
 WinStructs = require('./Win-Structs')
@@ -25,6 +25,7 @@ mainLoop = ->
 	if done
 		if debugWinMain then console.log done: done
 		#Shutdown
+		#console.log 'Shutown'
 		KillGLWindow(winObj)#Kill The Window
 		return
 	else
@@ -36,6 +37,7 @@ mainLoop = ->
 		if debugWinMain then console.log pmStatus: pmStatus
 		if debugWinMain then console.log 'msg: ', msg.toObject()
 		if msg.message is User32.WM_QUIT                  #Have We Received A Quit Message?
+			console.log 'User32.WM_QUIT'
 			done = true                                     #If So done=TRUE
 		else                                              #If Not, Deal With Window Messages
 			tmStatus = User32.TranslateMessage(msg)                    #Translate The Message
@@ -44,8 +46,9 @@ mainLoop = ->
 			if debugWinMain then console.log dmStatus: dmStatus
 	else                                                #If There Are No Messages
 		dglsStatus = DrawGLScene()
-		#if debugWinMain then console.log dglsStatus: dglsStatus
+#		if debugWinMain then console.log dglsStatus: dglsStatus
 		if (active && !dglsStatus) || winObj.keys[User32.VK_ESCAPE] #Draw The Scene.  Watch For ESC Key And Quit Messages From DrawGLScene() Active?  Was There A Quit Received?
+#			console.log 'dglsStatus', dglsStatus
 			done = true                                     #ESC or DrawGLScene Signalled A Quit
 		else                                              #Not Time To Quit, Update Screen
 			sbStatus = User32.SwapBuffers(winObj.hDC)                         #Swap Buffers (Double Buffering)
@@ -56,11 +59,13 @@ mainLoop = ->
 						hDC: winObj.hDC
 
 		if winObj.keys[User32.VK_F1]                             #Is F1 Being Pressed?
-			winObj.keys[User32.VK_F1]=gl.FALSE                        #If So Make Key FALSE
+			winObj.keys[User32.VK_F1]=User32.FALSE                        #If So Make Key FALSE
 			KillGLWindow(winObj)                                  #Kill Our Current Window
 			winObj.fullscreen=!winObj.fullscreen                          #Toggle Fullscreen / Windowed Mode
 			unless CreateGLWindow(winObj, 'NeHe\'s Solid Object Tutorial', 640, 480, 32, winObj.fullscreen) #Recreate Our OpenGL Window
 				return 0                                      #Quit If Window Was Not Created
+			else
+				User32.FreeConsole()
 
 exports.WinMain = WinMain = ->
 	#Ask The User Which Screen Mode They Prefer
@@ -69,5 +74,5 @@ exports.WinMain = WinMain = ->
 		return 0                                            #Quit If Window Was Not Created
 
 	ReSizeGLScene(640, 480)
-	gl.wglSwapIntervalEXT(0)
+	#gl.wglSwapIntervalEXT(0)
 	setImmediate mainLoop

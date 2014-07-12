@@ -1,4 +1,4 @@
-require('./media-accel') #adds MediaAccel, gl, wgl, glu, User32, Gdi32 to global space
+#require('./media-accel')
 
 StructHelpers = require('./StructHelpers')
 
@@ -223,9 +223,9 @@ exports.createClass = (name, bufSize, obj) ->
 	return ret
 
 
-if debugStructs then console.log 'PIXELFORMATDESCRIPTOR', Gdi32.sizeof_PIXELFORMATDESCRIPTOR
+if debugStructs then console.log 'PIXELFORMATDESCRIPTOR', User32.sizeof_PIXELFORMATDESCRIPTOR
 
-exports.PIXELFORMATDESCRIPTOR = exports.createClass 'PIXELFORMATDESCRIPTOR', Gdi32.sizeof_PIXELFORMATDESCRIPTOR, 
+exports.PIXELFORMATDESCRIPTOR = exports.createClass 'PIXELFORMATDESCRIPTOR', User32.sizeof_PIXELFORMATDESCRIPTOR, 
 	nSize:             'WORD'
 	nVersion:          'WORD'
 	dwFlags:           'DWORD'
@@ -274,7 +274,7 @@ if false
 #defI32LE exports.RECT, 'right', 8
 #defI32LE exports.RECT, 'bottom', 12
 
-exports.RECT = exports.createClass 'RECT', Gdi32.sizeof_RECT,
+exports.RECT = exports.createClass 'RECT', User32.sizeof_RECT,
 	left:   'LONG'
 	top:    'LONG'
 	right:  'LONG'

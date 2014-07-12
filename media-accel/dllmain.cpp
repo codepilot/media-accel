@@ -1,3 +1,5 @@
+#define USE_autogen_OpenGL
+
 #include <SDKDDKVer.h>
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
@@ -5,13 +7,16 @@
 #include <v8.h>
 #include <node.h>
 #include <node_buffer.h>
-#include <gl\gl.h>
-#include <gl\glu.h>
 #include <intrin.h>
 #include <cstdint>
 #include <string>
-#include "glext.h"
-#include "wglext.h"
+#ifdef USE_autogen_OpenGL
+#else
+	#include <gl\gl.h>
+	#include <gl\glu.h>
+	#include "glext.h"
+	#include "wglext.h"
+#endif
 
 
 LRESULT	CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);	// Declaration For WndProc
@@ -22,12 +27,21 @@ LRESULT	CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);	// Declaration For WndProc
 
 #include "class_User32.h"
 #include "class_Gdi32.h"
-#include "class_OpenGL.h"
-#include "class_WNDCLASSW.h"
-#include "class_intrinsics.h"
 
+#ifdef USE_autogen_OpenGL
+	#include "autogen_OpenGL.h"
+	v8::Persistent<v8::Function> class_OpenGL::constructor;
+	v8::Persistent<v8::ObjectTemplate> class_OpenGL::retTpl;
+#else
+	#include "class_OpenGL.h"
+#endif /* USE_autogen_OpenGL */
+
+#include "class_WNDCLASSW.h"
 v8::Persistent<v8::Function> class_WNDCLASSW::constructor;
 v8::Persistent<v8::ObjectTemplate> class_WNDCLASSW::retTpl;
+
+#include "class_intrinsics.h"
+
 
 BOOL APIENTRY DllMain( HMODULE hModule,
                        DWORD  ul_reason_for_call,
@@ -183,6 +197,7 @@ v8::Handle<v8::Value> func_DispatchMessage(const v8::Arguments& args) {
 
 void init(v8::Handle<v8::Object> target) {
 	class_WNDCLASSW::Init(target);
+	class_OpenGL::Init(target);
 
 #define SetFunctionSymbol(func) { target->Set(v8::String::NewSymbol(#func), v8::FunctionTemplate::New(func_##func)->GetFunction()); }
 
@@ -203,6 +218,11 @@ void init(v8::Handle<v8::Object> target) {
 	SetFunctionSymbolStatic(Intrinsics, RdRand32)
 
 	{ //Gdi32
+		SetFunctionSymbolStatic(Gdi32, wglMakeCurrent)
+		SetFunctionSymbolStatic(Gdi32, wglDeleteContext)
+		SetFunctionSymbolStatic(Gdi32, wglCreateContext)
+		SetFunctionSymbolStatic(Gdi32, wglMakeCurrent)
+
 		SetFunctionSymbolStatic(Gdi32, MoveWindow)
 		SetFunctionSymbolStatic(Gdi32, GetClientRect)
 		SetFunctionSymbolStatic(Gdi32, GetWindowRect)
@@ -213,16 +233,12 @@ void init(v8::Handle<v8::Object> target) {
 		SetFunctionSymbolStatic(Gdi32, ShowCursor)
 		SetFunctionSymbolStatic(Gdi32, UnregisterClassW)
 		SetFunctionSymbolStatic(Gdi32, DestroyWindow)
-		SetFunctionSymbolStatic(Gdi32, wglMakeCurrent)
-		SetFunctionSymbolStatic(Gdi32, wglDeleteContext)
 		SetFunctionSymbolStatic(Gdi32, ReleaseDC)
 		SetFunctionSymbolStatic(Gdi32, AdjustWindowRectEx)
 		SetFunctionSymbolStatic(Gdi32, CreateWindowEx)
 		SetFunctionSymbolStatic(Gdi32, GetDC)
 		SetFunctionSymbolStatic(Gdi32, ChoosePixelFormat)
 		SetFunctionSymbolStatic(Gdi32, SetPixelFormat)
-		SetFunctionSymbolStatic(Gdi32, wglCreateContext)
-		SetFunctionSymbolStatic(Gdi32, wglMakeCurrent)
 		SetFunctionSymbolStatic(Gdi32, ShowWindow)
 		SetFunctionSymbolStatic(Gdi32, SetForegroundWindow)
 		SetFunctionSymbolStatic(Gdi32, SetFocus)
@@ -234,6 +250,8 @@ void init(v8::Handle<v8::Object> target) {
 
 
 
+#ifdef USE_autogen_OpenGL
+#else
 	{ //OpenGL
 		SetFunctionSymbolStatic(OpenGL, glClear)
 		SetFunctionSymbolStatic(OpenGL, glLoadIdentity)
@@ -256,25 +274,51 @@ void init(v8::Handle<v8::Object> target) {
 		SetFunctionSymbolStatic(OpenGL, wglSwapIntervalEXT)
 		SetFunctionSymbolStatic(OpenGL, wglGetSwapIntervalEXT)
 	}
+#endif
+
 #undef SetFunctionSymbol
 #define SetConstantSymbol(constant) { target->Set(v8::String::NewSymbol(#constant), v8::Uint32::NewFromUnsigned(constant)); }
 	SetConstantSymbol(NULL)
 	SetConstantSymbol(TRUE)
 	SetConstantSymbol(FALSE)
 
+#ifdef USE_autogen_OpenGL
+#else
 	{//OpenGL
+		#define GL_QUADS                          0x0007
 		SetConstantSymbol(GL_QUADS)
+
+		#define GL_TRIANGLES                      0x0004
 		SetConstantSymbol(GL_TRIANGLES)
+
+		#define GL_COLOR_BUFFER_BIT               0x00004000
 		SetConstantSymbol(GL_COLOR_BUFFER_BIT)
+
+		#define GL_DEPTH_BUFFER_BIT               0x00000100
 		SetConstantSymbol(GL_DEPTH_BUFFER_BIT)
+
+		#define GL_PROJECTION                     0x1701
 		SetConstantSymbol(GL_PROJECTION)
+
+		#define GL_MODELVIEW                      0x1700
 		SetConstantSymbol(GL_MODELVIEW)
+
+		#define GL_SMOOTH                         0x1D01
 		SetConstantSymbol(GL_SMOOTH)
+
+		#define GL_DEPTH_TEST                     0x0B71
 		SetConstantSymbol(GL_DEPTH_TEST)
+
+		#define GL_LEQUAL                         0x0203
 		SetConstantSymbol(GL_LEQUAL)
+
+		#define GL_PERSPECTIVE_CORRECTION_HINT    0x0C50
 		SetConstantSymbol(GL_PERSPECTIVE_CORRECTION_HINT)
+
+		#define GL_NICEST                         0x1102
 		SetConstantSymbol(GL_NICEST)
 	}
+#endif
 
 #if 1 //from user32
 		SetConstantSymbol(WM_ACTIVATE)
@@ -622,17 +666,3 @@ void init(v8::Handle<v8::Object> target) {
 
 NODE_MODULE(media_accel, init);
 //NODE_MODULE(media_accel_media_accel_x64_Debug, init);
-
-
-
-HDC			hDC=NULL;		// Private GDI Device Context
-HGLRC		hRC=NULL;		// Permanent Rendering Context
-HWND		hWnd=NULL;		// Holds Our Window Handle
-HINSTANCE	hInstance;		// Holds The Instance Of The Application
-
-bool	keys[256];			// Array Used For The Keyboard Routine
-bool	active=TRUE;		// Window Active Flag Set To TRUE By Default
-bool	fullscreen=TRUE;	// Fullscreen Flag Set To Fullscreen Mode By Default
-
-GLfloat	rtri;				// Angle For The Triangle ( NEW )
-GLfloat	rquad;				// Angle For The Quad ( NEW )

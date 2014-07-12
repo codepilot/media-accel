@@ -1,13 +1,15 @@
-require('./media-accel') #adds MediaAccel, gl, wgl, glu, User32, Gdi32 to global space
+#require('./media-accel')
 
 shutdownErrorMessage = (msg) -> User32.MessageBox User32.NULL, msg, 'SHUTDOWN ERROR', User32.MB_OK | User32.MB_ICONEXCLAMATION
 
 exports.KillGLWindow = KillGLWindow = (winObj)->                           #Properly Kill The Window
+#	console.log 'KillGLWindow'
+
 	if winObj.hRC                                                            #Do We Have A Rendering Context?
-		unless gl.wglMakeCurrent(User32.NULL,User32.NULL)                         #Are We Able To Release The DC And RC Contexts?
+		unless User32.wglMakeCurrent(User32.NULL,User32.NULL)                         #Are We Able To Release The DC And RC Contexts?
 			shutdownErrorMessage 'Release Of DC And RC Failed.'
 
-		unless gl.wglDeleteContext(winObj.hRC)                                    #Are We Able To Delete The RC?
+		unless User32.wglDeleteContext(winObj.hRC)                                    #Are We Able To Delete The RC?
 			shutdownErrorMessage 'Release Rendering Context Failed.'
 
 	winObj.hRC=User32.NULL                                                   #Set RC To NULL

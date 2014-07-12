@@ -1,4 +1,4 @@
-require('./media-accel') #adds MediaAccel, gl, wgl, glu, User32, Gdi32 to global space
+#require('./media-accel')
 
 debugCreateGLWindow = false
 
@@ -11,8 +11,8 @@ KillGLWindow = require('./KillGLWindow').KillGLWindow
 errorMessage = (msg) -> User32.MessageBox User32.NULL, msg, 'ERROR', User32.MB_OK | User32.MB_ICONEXCLAMATION
 
 exports.CreateGLWindow = CreateGLWindow = (winObj, title, width, height, bits, fullscreenflag)->
-	if debugCreateGLWindow 
-		console.log
+	if debugCreateGLWindow
+		console.log 'CreateGLWindow',
 			title: title
 			width: width
 			height: height
@@ -142,6 +142,11 @@ exports.CreateGLWindow = CreateGLWindow = (winObj, title, width, height, bits, f
 
 
 	glmcStatus = User32.wglMakeCurrent(winObj.hDC,winObj.hRC)
+
+	global.gl = new MediaAccel.OpenGL()
+
+#	console.log gl: gl
+
 	if debugCreateGLWindow then console.log glmcStatus: glmcStatus
 
 	unless glmcStatus                                            #  Try To Activate The Rendering Context
@@ -161,12 +166,13 @@ exports.CreateGLWindow = CreateGLWindow = (winObj, title, width, height, bits, f
 
 	ReSizeGLScene(width, height)                                 #  Set Up Our Perspective GL Screen
 
-	initStatus = InitGL()
+	initStatus = InitGL(width, height)
 	if debugCreateGLWindow then console.log initStatus: initStatus
 
-	unless initStatus                                            #  Initialize Our Newly Created GL Window
-		KillGLWindow(winObj)                                             #  Reset The Display
-		errorMessage 'Initialization Failed.'
-		return FALSE                                               #  Return FALSE
+	#unless initStatus                                            #  Initialize Our Newly Created GL Window
+	#	console.log initStatus: initStatus
+	#	KillGLWindow(winObj)                                             #  Reset The Display
+	#	errorMessage 'Initialization Failed.'
+	#	return User32.FALSE                                               #  Return FALSE
 
 	return User32.TRUE                                           #  Success

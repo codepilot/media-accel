@@ -1,4 +1,4 @@
-require('./media-accel') #adds MediaAccel, gl, wgl, glu, User32, Gdi32 to global space
+#require('./media-accel')
 
 ReSizeGLScene = require('./ReSizeGLScene').ReSizeGLScene
 WinStructs = require('./Win-Structs')
@@ -7,7 +7,7 @@ debugWindowProc = false
 
 exports.WindowProc = WindowProc = (hWnd, uMsg, wParam, lParam, winObj) ->
 	if false
-		console.log JSON.stringify
+		console.log 'WindowProc', JSON.stringify
 			hWnd: hWnd
 			uMsg: uMsg
 			wParam: wParam
@@ -19,7 +19,7 @@ exports.WindowProc = WindowProc = (hWnd, uMsg, wParam, lParam, winObj) ->
 		wParam: wParam
 		lParam: lParam
 		arguments: arguments
-		this: this
+#		this: this
 
 	switch uMsg                                                                            # Check For Windows Messages
 		when User32.WM_ACTIVATE                                                              # Watch For Window Activate Message
@@ -54,7 +54,7 @@ exports.WindowProc = WindowProc = (hWnd, uMsg, wParam, lParam, winObj) ->
 			if debugWindowProc then console.log 'WndProc: WM_KEYDOWN', wParam: wParam
 			winObj.keys[wParam] = User32.TRUE                                                         # If So, Mark It As TRUE
 			switch String.fromCharCode(wParam)
-				when 'V' then gl.wglSwapIntervalEXT(not gl.wglGetSwapIntervalEXT())
+				#when 'V' then gl.wglSwapIntervalEXT(not gl.wglGetSwapIntervalEXT())
 				when 'F'
 					
 
