@@ -1,8 +1,6 @@
-#require('./media-accel')
-
 debugInitGL = false
 
-exports.InitGL = InitGL = (width, height) ->                   #All Setup For OpenGL Goes Here
+exports.InitGL_05 = InitGL = (width, height) ->                   #All Setup For OpenGL Goes Here
 	if debugInitGL
 		console.log 'InitGL', width, height
 
@@ -16,4 +14,8 @@ exports.InitGL = InitGL = (width, height) ->                   #All Setup For Op
 	gl.glEnable(gl.GL_DEPTH_TEST)                                #Enables Depth Testing
 	gl.glDepthFunc(gl.GL_LEQUAL)                                 #The Type Of Depth Testing To Do
 	gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST)   #Really Nice Perspective Calculations
+
 	return User32.TRUE                                               #Initialization Went OK
+
+switch global.NeHeLesson
+	when 2, 3, 4, 5 then exports.InitGL = exports.InitGL_05

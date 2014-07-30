@@ -26,7 +26,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -46,14 +46,16 @@
     <TargetName>$(ProjectName)</TargetName>
     <TargetExt>.node</TargetExt>
     <IncludePath>$(ProjectDir);$(NODESRC)\src;$(NODESRC)\deps\v8\include;$(NODESRC)\deps\uv\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(NODESRC)\$(NODE_BUILD_MODE);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(NODESRC)\debug;$(LibraryPath)</LibraryPath>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(NODESRC)\src;$(NODESRC)\deps\v8\include;$(NODESRC)\deps\uv\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(NODESRC)\$(NODE_BUILD_MODE);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir);$(NODESRC)\src;$(NODESRC)\deps\v8\include;$(NODESRC)\deps\uv\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(NODESRC)\release;$(LibraryPath)</LibraryPath>
     <IntDir>$(SolutionDir)$(Platform)\$(Configuration)\Intermediate\</IntDir>
     <TargetExt>.node</TargetExt>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -61,28 +63,36 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;MEDIAACCEL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>glu32.lib;opengl32.lib;node.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
     </Link>
     <PostBuildEvent>
-      <Command>dumpbin.exe /all "$(TargetPath)" &gt; "$(IntDir)\nodebin.txt"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Message>dumpbin.exe /all "$(TargetPath)" &gt; "$(IntDir)\nodebin.txt"</Message>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;MEDIAACCEL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -90,11 +100,15 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <LargeAddressAware>true</LargeAddressAware>
-      <AdditionalDependencies>glu32.lib;opengl32.lib;node.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>LinkVerbose</ShowProgress>
+      <LinkStatus>true</LinkStatus>
+      <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
     </Link>
     <PostBuildEvent>
-      <Command>dumpbin.exe /all "$(TargetPath)" &gt; "$(IntDir)\nodebin.txt"</Command>
-      <Message>dumpbin.exe /all "$(TargetPath)" &gt; "$(IntDir)\nodebin.txt"</Message>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -109,18 +123,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="autogen_OpenGL.h" />
-    <ClInclude Include="code_CreateGLWindow.h" />
-    <ClInclude Include="code_DrawGLScene.h" />
-    <ClInclude Include="code_InitGL.h" />
-    <ClInclude Include="code_KillGLWindow.h" />
-    <ClInclude Include="code_ReSizeGLScene.h" />
-    <ClInclude Include="code_WinMain.h" />
-    <ClInclude Include="code_WndProc.h" />
+    <ClInclude Include="autogen_WGL.h" />
+    <ClInclude Include="class_Destructor.h" />
     <ClInclude Include="class_Gdi32.h" />
+    <ClInclude Include="class_GDIPLUS.h" />
+    <ClInclude Include="class_GDIPLUS_BITMAP.h" />
+    <ClInclude Include="class_GDIPLUS_IMAGE.h" />
     <ClInclude Include="class_Intrinsics.h" />
-    <ClInclude Include="class_OpenGL.h" />
     <ClInclude Include="class_User32.h" />
     <ClInclude Include="class_WNDCLASSW.h" />
+    <ClInclude Include="User32Keyboard.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />

@@ -136,6 +136,26 @@ public:
 		return v8::Undefined();
 	}
 
+	static v8::Handle<v8::Value> func_ValidateRect(const v8::Arguments& args) {
+		if(args.Length() >= 2){
+			BOOL ret = ValidateRect(
+				argToPointerType(0, HWND),
+				(const RECT *)args[1]->ToObject()->Get(v8::String::NewSymbol("buf"))->ToObject()->GetIndexedPropertiesExternalArrayData()
+			);
+			v8::HandleScope scope;
+			return scope.Close(v8::Int32::New(ret));
+		}
+		if(args.Length() >= 1){
+			BOOL ret = ValidateRect(
+				argToPointerType(0, HWND),
+				nullptr
+			);
+			v8::HandleScope scope;
+			return scope.Close(v8::Int32::New(ret));
+		}
+		return v8::Undefined();
+	}
+
 	static v8::Handle<v8::Value> func_GetClientRect(const v8::Arguments& args) {
 		if(args.Length() >= 2){
 			BOOL ret = GetClientRect(
@@ -190,7 +210,7 @@ public:
 
 		ATOM ret = RegisterClassW(lpWndClass);
 
-		printf("ret: %p\n\n", ret);
+		printf("ret: %u\n\n", ret);
 		return ret;
 	}
 	static HWND bounce_CreateWindowExW(

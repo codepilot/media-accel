@@ -8,7 +8,7 @@ gluPerspective = (fovY, aspect, zNear, zFar)->
 	gl.glFrustum( -fW, fW, -fH, fH, zNear, zFar );
 
 
-exports.ReSizeGLScene = ReSizeGLScene = (width, height) -> # Resize And Initialize The GL Window
+exports.ReSizeGLScene_05 = ReSizeGLScene = (winObj, width, height) -> # Resize And Initialize The GL Window
 	return unless global.gl?
 	if debugReSizeGLScene then console.log 'ReSizeGLScene', width: width, height: height
 	unless height                                            # Prevent A Divide By Zero By
@@ -23,3 +23,8 @@ exports.ReSizeGLScene = ReSizeGLScene = (width, height) -> # Resize And Initiali
 
 	gl.glMatrixMode(gl.GL_MODELVIEW)                         # Select The Modelview Matrix
 	gl.glLoadIdentity()                                      # Reset The Modelview Matrix
+	winObj.width = width
+	winObj.height = height
+
+switch global.NeHeLesson
+	when 2, 3, 4, 5 then exports.ReSizeGLScene = exports.ReSizeGLScene_05

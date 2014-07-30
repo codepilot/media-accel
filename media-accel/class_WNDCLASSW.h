@@ -106,6 +106,9 @@ public:
 		return scope.Close(v8::Number::New((int64_t)obj));
 	}
 
+	#define     GetWindowStyle(hwnd)    ((DWORD)GetWindowLong(hwnd, GWL_STYLE))
+#define     GetWindowExStyle(hwnd)  ((DWORD)GetWindowLong(hwnd, GWL_EXSTYLE))
+
 	static LRESULT CALLBACK WindowProc(_In_  HWND hWnd, _In_  UINT uMsg, _In_  WPARAM wParam, _In_  LPARAM lParam) {
 		//printf("WindowProc(%p, %u, %Iu, %Id)\n", hWnd, uMsg, wParam, lParam);
 
@@ -207,7 +210,7 @@ public:
 
 private:
 	class_WNDCLASSW() {
-		OutputDebugString(L"WNDCLASSW()");
+		OutputDebugString(L"WNDCLASSW()\n");
 		SecureZeroMemory(&data, sizeof(data));
 		data.hInstance = GetModuleHandle(nullptr);
 #if 0
@@ -218,7 +221,7 @@ private:
 		THIS_PTR = this;
 	}
 	~class_WNDCLASSW() {
-		OutputDebugString(L"~WNDCLASSW()");
+		OutputDebugString(L"~WNDCLASSW()\n");
 	}
 	static v8::Handle<v8::Value> New(const v8::Arguments& args) {
 		v8::HandleScope scope;

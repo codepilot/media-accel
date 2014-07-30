@@ -1,8 +1,12 @@
-#define USE_autogen_OpenGL
+//#define BUILD_WITHOUT_AUTO
+#pragma comment(lib, "Node.lib")
+#pragma comment(lib, "Shlwapi.lib")
+
 
 #include <SDKDDKVer.h>
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #include <windows.h>
+#include <Windowsx.h>
 #include <tchar.h>
 #include <v8.h>
 #include <node.h>
@@ -10,13 +14,7 @@
 #include <intrin.h>
 #include <cstdint>
 #include <string>
-#ifdef USE_autogen_OpenGL
-#else
-	#include <gl\gl.h>
-	#include <gl\glu.h>
-	#include "glext.h"
-	#include "wglext.h"
-#endif
+//#include <vector>
 
 
 LRESULT	CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);	// Declaration For WndProc
@@ -28,19 +26,41 @@ LRESULT	CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);	// Declaration For WndProc
 #include "class_User32.h"
 #include "class_Gdi32.h"
 
-#ifdef USE_autogen_OpenGL
-	#include "autogen_OpenGL.h"
-	v8::Persistent<v8::Function> class_OpenGL::constructor;
-	v8::Persistent<v8::ObjectTemplate> class_OpenGL::retTpl;
-#else
-	#include "class_OpenGL.h"
-#endif /* USE_autogen_OpenGL */
+const int64_t sizeOfExternalArrayType[10]{0i64, 1i64, 1i64, 2i64, 2i64, 4i64, 4i64, 4i64, 8i64, 4i64};
+
+
+#include "class_Destructor.h"
+v8::Persistent<v8::Function> class_Destructor::constructor;
 
 #include "class_WNDCLASSW.h"
 v8::Persistent<v8::Function> class_WNDCLASSW::constructor;
 v8::Persistent<v8::ObjectTemplate> class_WNDCLASSW::retTpl;
 
+#include "class_GDIPLUS.h"
+v8::Persistent<v8::Function> class_GDIPLUS::constructor;
+v8::Persistent<v8::ObjectTemplate> class_GDIPLUS::retTpl;
+
+#include "class_GDIPLUS_IMAGE.h"
+v8::Persistent<v8::Function> class_GDIPLUS_IMAGE::constructor;
+v8::Persistent<v8::ObjectTemplate> class_GDIPLUS_IMAGE::retTpl;
+
+#include "class_GDIPLUS_BITMAP.h"
+v8::Persistent<v8::Function> class_GDIPLUS_BITMAP::constructor;
+v8::Persistent<v8::ObjectTemplate> class_GDIPLUS_BITMAP::retTpl;
+
 #include "class_intrinsics.h"
+
+#pragma comment(lib, "OpenGL32.lib")
+#ifndef BUILD_WITHOUT_AUTO
+
+#include "autogen_OpenGL.h"
+v8::Persistent<v8::Function> class_OpenGL::constructor;
+v8::Persistent<v8::ObjectTemplate> class_OpenGL::retTpl;
+
+#include "autogen_WGL.h"
+v8::Persistent<v8::Function> class_WGL::constructor;
+v8::Persistent<v8::ObjectTemplate> class_WGL::retTpl;
+#endif
 
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -196,10 +216,99 @@ v8::Handle<v8::Value> func_DispatchMessage(const v8::Arguments& args) {
 
 
 void init(v8::Handle<v8::Object> target) {
-	class_WNDCLASSW::Init(target);
-	class_OpenGL::Init(target);
+#if 0
+	{
+		//HBITMAP bitmap = CreateBitmap(128, 128, 1, 32, nullptr);
+		uint8_t defaultBuffer[16 * 1024]{0};
+		auto hdc = CreateDC(TEXT("DISPLAY"),NULL,NULL,NULL);
+		HFONT font = CreateFont(
+			0,
+			0,
+			0,
+			0,
+			FW_DONTCARE,
+			FALSE,
+			FALSE,
+			FALSE,
+			DEFAULT_CHARSET,
+			OUT_TT_ONLY_PRECIS,
+			CLIP_DEFAULT_PRECIS,
+			PROOF_QUALITY,
+			FF_SWISS | FIXED_PITCH,
+			TEXT("Anonymous Pro"));
+		GLYPHMETRICS gm{0,0,{0,0},0,0};
+		MAT2 mat2{{0,2}, {0,0}, {0,0}, {0,2}};
+		HFONT oldFont = (HFONT)SelectObject(hdc, font);
+		for(int i = 0; i <= 255; i++) {
 
+			const auto bufferSize = GetGlyphOutline(
+				hdc,
+				i,
+				GGO_GRAY8_BITMAP,
+				&gm,
+				0,
+				nullptr,
+				&mat2);
+			if(GDI_ERROR == bufferSize) {
+				printf("GetGlyphOutline GDI_ERROR\n");
+			}
+			uint8_t *buf = bufferSize > sizeof(defaultBuffer)?new uint8_t[bufferSize]():defaultBuffer;
+
+
+			const auto outlineStatus = GetGlyphOutline(
+				hdc,
+				i,
+				GGO_GRAY8_BITMAP,
+				&gm,
+				bufferSize,
+				buf,
+				&mat2);
+
+			puts("");
+			puts("");
+			int scan = gm.gmBlackBoxX;
+			while(scan & 3) { scan++; }
+			printf("BoxX: %3d BoxY: %3d Scan: %3d\n\n", gm.gmBlackBoxX, gm.gmBlackBoxY, scan);
+			for(int y = 0; y < gm.gmBlackBoxY; y++) {
+				printf("%3d\t\t", y);
+				for(int x = 0; x < gm.gmBlackBoxX; x++) {
+					auto cur = buf[(x + (scan * y))];
+					if(!cur) { printf("   "); continue; }
+					printf("%2d ", cur);
+				}
+				puts("");
+			}
+			puts("");
+
+			if(buf!=defaultBuffer) {
+				delete[] buf;
+			}
+		}
+		(HFONT)SelectObject(hdc, oldFont);
+		auto deleteStatus = DeleteDC(hdc);
+		DeleteObject(font);
+		printf("deleteStatus %d", deleteStatus);
+	}
+#endif
+
+	class_Destructor::Init(target);
+	class_WNDCLASSW::Init(target);
+	class_GDIPLUS::Init(target);
+	class_GDIPLUS_IMAGE::Init(target);
+	class_GDIPLUS_BITMAP::Init(target);
+#ifndef BUILD_WITHOUT_AUTO
+	class_OpenGL::Init(target);
+	class_WGL::Init(target);
+#endif
 #define SetFunctionSymbol(func) { target->Set(v8::String::NewSymbol(#func), v8::FunctionTemplate::New(func_##func)->GetFunction()); }
+
+#if 0
+	{
+		class_GDIPLUS test;
+		class_GDIPLUS_IMAGE test_image;
+		class_GDIPLUS_BITMAP test_bitmap;
+	}
+#endif
 
 	//SetFunctionSymbol(RdRand32)
 	
@@ -222,8 +331,9 @@ void init(v8::Handle<v8::Object> target) {
 		SetFunctionSymbolStatic(Gdi32, wglDeleteContext)
 		SetFunctionSymbolStatic(Gdi32, wglCreateContext)
 		SetFunctionSymbolStatic(Gdi32, wglMakeCurrent)
-
+		GET_Y_LPARAM(0);
 		SetFunctionSymbolStatic(Gdi32, MoveWindow)
+		SetFunctionSymbolStatic(Gdi32, ValidateRect)
 		SetFunctionSymbolStatic(Gdi32, GetClientRect)
 		SetFunctionSymbolStatic(Gdi32, GetWindowRect)
 		SetFunctionSymbolStatic(Gdi32, SetWindowLong)
@@ -248,79 +358,15 @@ void init(v8::Handle<v8::Object> target) {
 		SetFunctionSymbolStatic(Gdi32, HIWORD)
 	}
 
-
-
-#ifdef USE_autogen_OpenGL
-#else
-	{ //OpenGL
-		SetFunctionSymbolStatic(OpenGL, glClear)
-		SetFunctionSymbolStatic(OpenGL, glLoadIdentity)
-		SetFunctionSymbolStatic(OpenGL, glTranslatef)
-		SetFunctionSymbolStatic(OpenGL, glRotatef)
-		SetFunctionSymbolStatic(OpenGL, glBegin)
-		SetFunctionSymbolStatic(OpenGL, glEnd)
-		SetFunctionSymbolStatic(OpenGL, glColor3f)
-		SetFunctionSymbolStatic(OpenGL, glVertex3f)
-		SetFunctionSymbolStatic(OpenGL, glViewport)
-		SetFunctionSymbolStatic(OpenGL, glMatrixMode)
-		SetFunctionSymbolStatic(OpenGL, gluPerspective)
-
-		SetFunctionSymbolStatic(OpenGL, glShadeModel)
-		SetFunctionSymbolStatic(OpenGL, glClearColor)
-		SetFunctionSymbolStatic(OpenGL, glClearDepth)
-		SetFunctionSymbolStatic(OpenGL, glEnable)
-		SetFunctionSymbolStatic(OpenGL, glDepthFunc)
-		SetFunctionSymbolStatic(OpenGL, glHint)
-		SetFunctionSymbolStatic(OpenGL, wglSwapIntervalEXT)
-		SetFunctionSymbolStatic(OpenGL, wglGetSwapIntervalEXT)
-	}
-#endif
-
 #undef SetFunctionSymbol
 #define SetConstantSymbol(constant) { target->Set(v8::String::NewSymbol(#constant), v8::Uint32::NewFromUnsigned(constant)); }
 	SetConstantSymbol(NULL)
 	SetConstantSymbol(TRUE)
 	SetConstantSymbol(FALSE)
 
-#ifdef USE_autogen_OpenGL
-#else
-	{//OpenGL
-		#define GL_QUADS                          0x0007
-		SetConstantSymbol(GL_QUADS)
-
-		#define GL_TRIANGLES                      0x0004
-		SetConstantSymbol(GL_TRIANGLES)
-
-		#define GL_COLOR_BUFFER_BIT               0x00004000
-		SetConstantSymbol(GL_COLOR_BUFFER_BIT)
-
-		#define GL_DEPTH_BUFFER_BIT               0x00000100
-		SetConstantSymbol(GL_DEPTH_BUFFER_BIT)
-
-		#define GL_PROJECTION                     0x1701
-		SetConstantSymbol(GL_PROJECTION)
-
-		#define GL_MODELVIEW                      0x1700
-		SetConstantSymbol(GL_MODELVIEW)
-
-		#define GL_SMOOTH                         0x1D01
-		SetConstantSymbol(GL_SMOOTH)
-
-		#define GL_DEPTH_TEST                     0x0B71
-		SetConstantSymbol(GL_DEPTH_TEST)
-
-		#define GL_LEQUAL                         0x0203
-		SetConstantSymbol(GL_LEQUAL)
-
-		#define GL_PERSPECTIVE_CORRECTION_HINT    0x0C50
-		SetConstantSymbol(GL_PERSPECTIVE_CORRECTION_HINT)
-
-		#define GL_NICEST                         0x1102
-		SetConstantSymbol(GL_NICEST)
-	}
-#endif
-
 #if 1 //from user32
+	#include "User32Keyboard.h"
+#else
 		SetConstantSymbol(WM_ACTIVATE)
 		//SetConstantSymbol(LOWORD)
 		//SetConstantSymbol(HIWORD)

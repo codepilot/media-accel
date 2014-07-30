@@ -8,6 +8,10 @@ InitGL = require('./InitGL').InitGL
 WindowProc = require('./WindowProc').WindowProc
 KillGLWindow = require('./KillGLWindow').KillGLWindow
 
+glGeti = require('./glGeti').glGeti
+GL_GET_PNAME_FUNC = require('./glGeti').GL_GET_PNAME_FUNC
+
+
 errorMessage = (msg) -> User32.MessageBox User32.NULL, msg, 'ERROR', User32.MB_OK | User32.MB_ICONEXCLAMATION
 
 exports.CreateGLWindow = CreateGLWindow = (winObj, title, width, height, bits, fullscreenflag)->
@@ -24,6 +28,9 @@ exports.CreateGLWindow = CreateGLWindow = (winObj, title, width, height, bits, f
 	#winObj.wc = new User32.WNDCLASSW()
 	dwExStyle = undefined                                                           #(DWORD)  Window Extended Style
 	dwStyle = undefined                                                             #(DWORD)  Window Style
+
+	winObj.width = width
+	winObj.height = height
 
 	WindowRect = WinStructs.RECT.fromObjects                                     #(RECT)  Grabs Rectangle Upper Left / Lower Right Values
 		left: 0                                                                        #Set Left Value To 0
@@ -45,9 +52,9 @@ exports.CreateGLWindow = CreateGLWindow = (winObj, title, width, height, bits, f
 		lpszClassName: 'OpenGL'                                          #Set The Class Name
 
 	if debugCreateGLWindow then console.log 'winObj.wc: ', winObj.wc.toObject()
-	
-	winObj.wc.SetCallback (hWnd, uMsg, wParam, lParam)-> WindowProc(hWnd, uMsg, wParam, lParam, winObj) 
-	
+
+	winObj.wc.SetCallback (hWnd, uMsg, wParam, lParam)-> WindowProc(hWnd, uMsg, wParam, lParam, winObj)
+
 	unless winObj.wc.RegisterClass()                                                       #Attempt To Register The Window Class
 		errorMessage 'Failed To Register The Window Class.'
 		return User32.FALSE                                                           #  Return FALSE
@@ -92,6 +99,7 @@ exports.CreateGLWindow = CreateGLWindow = (winObj, title, width, height, bits, f
 		errorMessage 'Window Creation Error.'
 		return User32.FALSE                                        #  Return FALSE
 
+
 	winObj.hDC=User32.GetDC(winObj.hWnd)
 	if debugCreateGLWindow then console.log 'winObj: ', winObj
 
@@ -117,6 +125,8 @@ exports.CreateGLWindow = CreateGLWindow = (winObj, title, width, height, bits, f
 
 	PixelFormat = User32.ChoosePixelFormat(winObj.hDC,pfd)
 	if debugCreateGLWindow then console.log PixelFormat: PixelFormat
+
+#	PixelFormat = 101
 
 	unless PixelFormat                                           #  Did Windows Find A Matching Pixel Format?
 		KillGLWindow(winObj)                                             #  Reset The Display
@@ -144,8 +154,98 @@ exports.CreateGLWindow = CreateGLWindow = (winObj, title, width, height, bits, f
 	glmcStatus = User32.wglMakeCurrent(winObj.hDC,winObj.hRC)
 
 	global.gl = new MediaAccel.OpenGL()
+	global.wgl = new MediaAccel.WGL()
+	
+	require('./gl.Texture').init gl
 
-#	console.log gl: gl
+	MediaAccel.GlErrorAbort('CreateGLWindow: 156')
+
+	if 0
+		for k, v of GL_GET_PNAME_FUNC
+			gotten = glGeti gl[k], 0
+			error = gl.glGetError()
+			if error
+				console.log k
+				console.log error
+				console.log gotten
+				console.log ''
+			else
+				console.log k, gotten
+			#glGeti gl[k], 0
+
+#	console.log 'GL_ALIASED_LINE_WIDTH_RANGE', glGeti gl.GL_ALIASED_LINE_WIDTH_RANGE
+
+	#GLAPI const GLubyte *APIENTRY glGetStringi (GLenum name, GLuint index);
+		#GL_EXTENSIONS
+			#For glGetStringi only, returns the extension string supported by the implementation at index.
+	gl.glGetStrings = (name)->
+		ret = []
+		loop
+			errorBefore = gl.glGetError()
+			n = gl?.glGetStringi? name, ret.length
+			errorAfter = gl.glGetError()
+			break if errorAfter
+			if n?.length
+				ret.push n
+			else
+				break
+		if ret.length
+			return ret
+		else
+			errorBefore = gl.glGetError()
+			ret = gl.glGetString(name)
+			errorAfter = gl.glGetError()
+			return if errorAfter
+			return ret
+
+	MediaAccel.GlErrorAbort('CreateGLWindow: 189')
+
+
+	if debugCreateGLWindow then console.log 'GL_VENDOR:                   ', gl.glGetStrings(gl.GL_VENDOR)
+	if debugCreateGLWindow then console.log 'GL_RENDERER:                 ', gl.glGetStrings(gl.GL_RENDERER)
+	if debugCreateGLWindow then console.log 'GL_VERSION:                  ', gl.glGetStrings(gl.GL_VERSION)
+	if debugCreateGLWindow then console.log 'GL_SHADING_LANGUAGE_VERSION: ', gl.glGetStrings(gl.GL_SHADING_LANGUAGE_VERSION)
+	if debugCreateGLWindow then console.log 'GL_EXTENSIONS:               ', gl.glGetStrings(gl.GL_EXTENSIONS)
+
+	MediaAccel.GlErrorAbort('CreateGLWindow: 198')
+
+	for n in gl.glGetStrings(gl.GL_EXTENSIONS)
+		if n?.length
+			gl[n] = true
+
+	MediaAccel.GlErrorAbort('CreateGLWindow: 202')
+
+	#GLAPI const GLubyte *APIENTRY glGetString (GLenum name);
+		#GL_VENDOR
+			#Returns the company responsible for this GL implementation. This name does not change from release to release.
+		#GL_RENDERER
+			#Returns the name of the renderer. This name is typically specific to a particular configuration of a hardware platform. It does not change from release to release.
+		#GL_VERSION
+			#Returns a version or release number.
+		#GL_SHADING_LANGUAGE_VERSION
+			#Returns a version or release number for the shading language.
+
+	if debugCreateGLWindow then console.log 'wglGetExtensionsStringEXT', wgl.wglGetExtensionsStringEXT?().split(' ')
+		#GLAPI const char *APIENTRY wglGetExtensionsStringEXT ();
+
+	if debugCreateGLWindow then console.log 'wglGetExtensionsStringARB', wgl.wglGetExtensionsStringARB?(winObj.hDC).split(' ')
+		#GLAPI const char *APIENTRY wglGetExtensionsStringARB (HDC hdc);
+
+	MediaAccel.GlErrorAbort('CreateGLWindow: 218')
+
+	for n in wgl.wglGetExtensionsStringEXT?().split(' ')
+		if n?.length
+			wgl[n] = true
+
+	for n in wgl.wglGetExtensionsStringARB?(winObj.hDC).split(' ')
+		if n?.length
+			wgl[n] = true
+
+	MediaAccel.GlErrorAbort('CreateGLWindow: 226')
+
+	if debugCreateGLWindow then console.log gl: gl
+	if debugCreateGLWindow then console.log gl: wgl
+
 
 	if debugCreateGLWindow then console.log glmcStatus: glmcStatus
 
@@ -164,7 +264,11 @@ exports.CreateGLWindow = CreateGLWindow = (winObj, title, width, height, bits, f
 	sfStatus = User32.SetFocus(winObj.hWnd)                                        #  Sets Keyboard Focus To The Window
 	if debugCreateGLWindow then console.log sfStatus: sfStatus
 
-	ReSizeGLScene(width, height)                                 #  Set Up Our Perspective GL Screen
+	MediaAccel.GlErrorAbort('CreateGLWindow: 247')
+
+	ReSizeGLScene(winObj, width, height)                                 #  Set Up Our Perspective GL Screen
+
+	MediaAccel.GlErrorAbort()
 
 	initStatus = InitGL(width, height)
 	if debugCreateGLWindow then console.log initStatus: initStatus

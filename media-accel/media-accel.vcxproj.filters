@@ -20,31 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code_WinMain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code_WndProc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code_CreateGLWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code_KillGLWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code_DrawGLScene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code_InitGL.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code_ReSizeGLScene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="class_Gdi32.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="class_OpenGL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="class_User32.h">
@@ -57,6 +33,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="autogen_OpenGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="autogen_WGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="User32Keyboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="class_GDIPLUS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="class_GDIPLUS_IMAGE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="class_GDIPLUS_BITMAP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="class_Destructor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
